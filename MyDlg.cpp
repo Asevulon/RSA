@@ -93,9 +93,10 @@ void MyDlg::OnBnClickedOk()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	RSA rsa;
-	rsa.Setn(9173503);
-	rsa.Sete(3);
-	rsa.SetD(6111579);
+	//rsa.Setn(527);
+	//rsa.Sete(7);
+	//rsa.SetD(343);
+	rsa.CreateKey();
 	rsa.Code();
 	rsa.Decode();
 }

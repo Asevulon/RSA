@@ -38,8 +38,8 @@ ui RSA::Getd()
 
 unsigned long RSA::CreateSimple()
 {
-	unsigned long res = 2 + 65531 * float(rand())/float(RAND_MAX);
-	while(!IsSimple(res))res = 2 + 65531 * float(rand()) / float(RAND_MAX);
+	unsigned long res = 2 + 256 * float(rand())/float(RAND_MAX);
+	while(!IsSimple(res))res = 2 + 256 * float(rand()) / float(RAND_MAX);
 	return res;
 }
 bool RSA::IsSimple(unsigned long data)
@@ -59,15 +59,43 @@ bool RSA::IsSimple(unsigned long data)
 	}
 	return true;
 }
-unsigned int RSA::mod(unsigned int x, unsigned int pwr, unsigned int md)
+ui RSA::_mod(ui x, ui pwr, ui md)
 {
 	if (pwr == 0)return 1;
 
 
-	unsigned int res = 1;
+	ui res = 1;
 	if ((pwr % 2) != 0)
 	{
-		res *= x % md;
+		res *= x;
+		res *= mod
+		(
+			(x * x)%md,
+			(pwr - 1) / 2,
+			md
+		);
+	}
+	else
+	{
+		res *= mod
+		(
+			(x * x)%md,
+			pwr / 2,
+			md
+		);
+	}
+	res = res % md;
+	return res;
+}
+ui RSA::mod(ui x, ui pwr, ui md)
+{
+	if (pwr == 0)return 1;
+
+
+	ui res = 1;
+	if ((pwr % 2) != 0)
+	{
+		res *= x;
 		res *= mod
 		(
 			(x * x) % md,
@@ -84,9 +112,7 @@ unsigned int RSA::mod(unsigned int x, unsigned int pwr, unsigned int md)
 			md
 		);
 	}
-	res = res % md;
-	return res;
-
+	return res%md;
 }
 ui RSA::eulerfunc(ui left, ui right)
 {
@@ -156,30 +182,48 @@ void RSA::CreateKey()
 	e = CreateE(y);
 	int temp = 0;
 	gcdext(e, y, d, temp);
+	d = abs(d);
 }
 
 
 char* RSA::ToChar(ui data)
 {
-	char res[4] = { 0,0,0,0 };
+	char* res = new char[4]{ 0, 0, 0, 0 };
 	
-	
-	res[0] |= data & 255;
-	res[1] |= (data & 65280) >> 8;
-	res[2] |= (data & 16711680) >> 16;
-	res[3] |= (data & 4278190080) >> 24;
+	ui temp = 255;
+	res[0] |= data & temp;
+
+	temp <<= 8;
+	res[1] |= (data & temp) >> 8;
+
+	temp <<= 8;
+	res[2] |= (data & temp) >> 16;
+
+	temp <<= 8;
+	res[3] |= (data & temp) >> 24;
 
 
 	return res;
 }
-ui RSA::ToUi(char* data)
+ui RSA::ToUi(unsigned char* data)
 {
 	ui res = 0;
 	res |= data[0];
-	res |= data[1] << 8;
-	res |= data[2] << 16;
-	res |= data[3] << 24;
 
+
+	ui temp = data[1];
+	temp <<= 8;
+	res |= temp;
+
+
+	temp = data[2];
+	temp <<= 16;
+	res |= temp;
+
+
+	temp = data[3];
+	temp <<= 24;
+	res |= temp;
 
 
 	return res;
@@ -210,10 +254,17 @@ void RSA::Code()
 		if (istr.eof())break;
 
 
-		ui temp = RSA::mod(c, e, n);
+		ui temp = RSA::_mod(c, e, n);
+		ui temp2 = RSA::_mod(temp, d, n);
 
+		
 		char* wr = ToChar(temp);
-		ostr.write(wr,4*sizeof(char));
+		for (int i = 0; i < 4; i++)
+		{
+			char cc = wr[i];
+			ostr.write(&cc, sizeof(char));
+		}
+		delete[]wr;
 	}
 
 
@@ -239,7 +290,7 @@ void RSA::Decode()
 
 	while (1)
 	{
-		char in[4];
+		unsigned char in[4];
 		for (int i = 0; i < 4; i++)
 		{
 			char c = 0;
@@ -249,8 +300,8 @@ void RSA::Decode()
 		}
 		if (istr.eof())break;
 
-
-		ui temp = RSA::mod(ToUi(in), d, n);
+		ui dec = ToUi(in);
+		ui temp = RSA::_mod(dec, d, n);
 
 
 		char wr = temp;

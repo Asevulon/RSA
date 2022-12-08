@@ -5,7 +5,7 @@
 using namespace std;
 
 
-typedef unsigned int ui;
+typedef unsigned long long int ui;
 
 
 //класс шифровальщик
@@ -22,12 +22,13 @@ protected:
 	unsigned long CreateSimple();
 	bool IsSimple(unsigned long data);
 	ui CreateE(ui cap);
-	unsigned int mod(unsigned int x, unsigned int pwr, unsigned int md);
+	ui mod(ui x, ui pwr, ui md);
+	ui RSA::_mod(ui x, ui pwr, ui md);
 	ui eulerfunc(ui left, ui right);
 	ui gcd(ui left, ui right);
 	ui gcdext(ui left, ui right, int& l, int& m);
 	char* ToChar(ui data);
-	ui ToUi(char* data);
+	ui ToUi(unsigned char* data);
 
 
 public:
