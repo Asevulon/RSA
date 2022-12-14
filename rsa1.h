@@ -19,7 +19,7 @@ private:
 
 
 protected:
-	unsigned long CreateSimple();
+	ui CreateSimple();
 	bool IsSimple(unsigned long data);
 	ui CreateE(ui cap);
 	ui mod(ui x, ui pwr, ui md);
@@ -48,4 +48,6 @@ public:
 
 	void Code();
 	void Decode();
+	string Code(string);
+	string Decode(string);
 };

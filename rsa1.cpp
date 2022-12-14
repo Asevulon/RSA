@@ -36,10 +36,10 @@ ui RSA::Getd()
 }
 
 
-unsigned long RSA::CreateSimple()
+ui RSA::CreateSimple()
 {
-	unsigned long res = 2 + 256 * float(rand())/float(RAND_MAX);
-	while(!IsSimple(res))res = 2 + 256 * float(rand()) / float(RAND_MAX);
+	ui res = 3 + 253 * float(rand())/float(RAND_MAX);
+	while(!IsSimple(res))res = 3 + 253 * float(rand()) / float(RAND_MAX);
 	return res;
 }
 bool RSA::IsSimple(unsigned long data)
@@ -50,8 +50,8 @@ bool RSA::IsSimple(unsigned long data)
 	for (int i = 0; i < 10; i++)
 	{
 		// берем а, которое не делится на р
-		unsigned long a = 2 + 256 * float(rand()) / float(RAND_MAX);
-		while((a%data)==0) a = 2 + 256 * float(rand()) / float(RAND_MAX);
+		unsigned long a = 3 + 253 * float(rand()) / float(RAND_MAX);
+		while((a%data)==0) a = 3 + 253 * float(rand()) / float(RAND_MAX);
 
 
 		
@@ -165,11 +165,12 @@ ui RSA::gcdext(ui left, ui right, int& l, int& m)
 }
 ui RSA::CreateE(ui cap)
 {
-	ui l = cap * float(rand()) / float(RAND_MAX);
-	while(gcd(cap,l)!=1)l = cap * float(rand()) / float(RAND_MAX);
-
-
-	return l;
+	ui e = 3 + (cap - 3) * float(rand()) / float(RAND_MAX);
+	while (gcd(cap, e) != 1)
+	{
+		e = 3 + (cap - 3) * float(rand()) / float(RAND_MAX);
+	}
+	return e;
 }
 
 
@@ -179,10 +180,13 @@ void RSA::CreateKey()
 	ui q = CreateSimple();
 	n = p * q;
 	ui y = eulerfunc(p, q);
-	e = CreateE(y);
-	int temp = 0;
-	gcdext(e, y, d, temp);
-	d = abs(d);
+	
+	do
+	{
+		e = CreateE(y);
+		int temp = 0;
+		gcdext(e, y, d, temp);
+	} while (d < 0);
 }
 
 
@@ -254,8 +258,7 @@ void RSA::Code()
 		if (istr.eof())break;
 
 
-		ui temp = RSA::_mod(c, e, n);
-		ui temp2 = RSA::_mod(temp, d, n);
+		ui temp = RSA::_mod(unsigned char(c), e, n);
 
 		
 		char* wr = ToChar(temp);
@@ -311,4 +314,50 @@ void RSA::Decode()
 
 	istr.close();
 	ostr.close();
+}
+
+
+string RSA::Code(string in)
+{
+	string res = "";
+
+
+	for (int i = 0; i < in.size(); i++)
+	{
+		ui temp = RSA::_mod(unsigned char(in[i]), e, n);
+		char* wr = ToChar(temp);
+
+		for (int g = 0; g < 4; g++)
+		{
+			res += wr[g];
+		}
+		delete[]wr;
+	}
+
+
+	return res;
+}
+string RSA::Decode(string in)
+{
+	string res = "";
+
+
+	for (int i = 0; i < in.size(); i += 4)
+	{
+		unsigned char inc[4] = { 0,0,0,0 };
+		inc[0] = in[i];
+		inc[1] = in[i + 1];
+		inc[2] = in[i + 2];
+		inc[3] = in[i + 3];
+		
+
+		ui dec = ToUi(inc);
+		ui temp = RSA::_mod(dec, d, n);
+
+		
+		res += char(temp);
+	}
+
+
+	return res;
 }

@@ -32,4 +32,18 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedOk();
+	unsigned long long n;
+	ui e;
+	ui d;
+	RSA rsa;
+	string it;
+	string ct;
+	afx_msg void OnBnClickedDecode();
+	afx_msg void OnBnClickedOk2();
+
+
+	HWND ihWnd;
+	HWND chWnd;
+	afx_msg void OnBnClickedDecode2();
+	afx_msg void OnBnClickedCreatekey();
 };
