@@ -48,6 +48,6 @@ public:
 
 	void Code();
 	void Decode();
-	string Code(string);
-	string Decode(string);
+	string Code(string str);
+	string Decode(string str);
 };

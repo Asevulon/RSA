@@ -180,13 +180,10 @@ void RSA::CreateKey()
 	ui q = CreateSimple();
 	n = p * q;
 	ui y = eulerfunc(p, q);
-	
-	do
-	{
-		e = CreateE(y);
-		int temp = 0;
-		gcdext(e, y, d, temp);
-	} while (d < 0);
+	e = CreateE(y);
+	int temp = 0;
+	gcdext(e, y, d, temp);
+	d += y;
 }
 
 
